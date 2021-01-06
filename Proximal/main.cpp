@@ -18,7 +18,7 @@ int main() {
 	LineSearch<Eigen::MatrixXd>* BT = new Back_Trace<Eigen::MatrixXd>(LS->f, LS->f_gradient);
 
 	// 合成Problem
-	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT);
+	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT); // 暂时不测试h(x)
 
 	//得到解
 	Output<Eigen::MatrixXd> ans= problem.Solve(x);
