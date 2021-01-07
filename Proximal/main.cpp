@@ -21,7 +21,7 @@ int main() {
 	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT); // 暂时不测试h(x)
 
 	//得到解
-	Output<Eigen::MatrixXd> ans= problem.Solve(x);
+	Output<Eigen::MatrixXd> ans= problem.Basic_Solve(x);
 	std::cout << LS->Residual(ans.solution);
 	return 0;
 }

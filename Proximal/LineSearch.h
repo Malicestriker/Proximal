@@ -22,9 +22,9 @@ public:
 		c2 = 0.9;
 	}
 
-	virtual double Line_Search_Result(Matrix x, Matrix Direction) {
+	virtual double Line_Search_Result(Matrix x, Matrix Direction, double t0) {
 		
-		double t = 2;
+		double t = t0;
 		double ref = object(x);
 		Matrix Gradient = gradient(x);
 		double lin = Gradient.cwiseProduct(Direction).sum();
@@ -45,4 +45,26 @@ public:
 	}
 
 
+};
+
+template<class Matrix>
+class Alter_BB : public BB<Matrix> {
+public:
+	virtual double BB_Step_Length(double t_pre, const Matrix& x, const Matrix& x_pre, const Matrix& g, const Matrix& g_pre, int iter) {
+		auto dx = x - x_pre;
+		auto dg = g - g_pre;
+		double dxg = std::abs(dx.array() * dg.array()).sum();
+		if (dxg > 0) {
+			return iter % 2 ? dx.squaredNorm() / dxg : dxg / dg.squaredNorm();
+		}
+		return t_pre;
+	}
+};
+
+template<class Matrix>
+class No_BB : public BB<Matrix> {
+public:
+	virtual double BB_Step_Length(double t_pre, const Matrix& x, const Matrix& x_pre, const Matrix& g, const Matrix& g_pre, int iter) {
+		return t_pre;
+	}
 };
