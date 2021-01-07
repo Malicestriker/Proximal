@@ -24,7 +24,7 @@ public:
 
 	virtual double Line_Search_Result(Matrix x, Matrix Direction) {
 		
-		double t = 2;
+		double t = 10;
 		double ref = object(x);
 		Matrix Gradient = gradient(x);
 		double lin = Gradient.cwiseProduct(Direction).sum();
@@ -32,13 +32,15 @@ public:
 		bool continue_flag = true;
 		while (continue_flag) {
 
-			t = t * 0.5;
+			t = t * 0.8;
 			continue_flag = false;
 			if (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin) continue_flag = true; // Armijo
 			else if( gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 *  lin ) continue_flag = true; // Wolfe
 			
-			/*std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
-				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() > c2 * lin) << std::endl;*/
+			std::cout << "[LineSearch] "<<t<<" " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
+				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 * lin) << std::endl;
+			std::cout << "[detail] " << ref << " " << gradient(x + t * Direction).cwiseProduct(Direction).sum() << " "<< c2 * lin <<std::endl;
+			if (t < 1e-9) break;
 		}
 
 		return t;
