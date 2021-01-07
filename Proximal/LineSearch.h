@@ -22,9 +22,9 @@ public:
 		c2 = 0.9;
 	}
 
-	virtual double Line_Search_Result(Matrix x, Matrix Direction) {
+	virtual double Line_Search_Result(Matrix x, Matrix Direction, double t0) {
 		
-		double t = 10;
+		double t = t0;
 		double ref = object(x);
 		Matrix Gradient = gradient(x);
 		double lin = Gradient.cwiseProduct(Direction).sum();
@@ -32,19 +32,39 @@ public:
 		bool continue_flag = true;
 		while (continue_flag) {
 
-			t = t * 0.8;
+			t = t * 0.5;
 			continue_flag = false;
 			if (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin) continue_flag = true; // Armijo
 			else if( gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 *  lin ) continue_flag = true; // Wolfe
 			
-			std::cout << "[LineSearch] "<<t<<" " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
-				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 * lin) << std::endl;
-			std::cout << "[detail] " << ref << " " << gradient(x + t * Direction).cwiseProduct(Direction).sum() << " "<< c2 * lin <<std::endl;
-			if (t < 1e-9) break;
+			/*std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
+				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() > c2 * lin) << std::endl;*/
 		}
 
 		return t;
 	}
 
 
+};
+
+template<class Matrix>
+class Alter_BB : public BB<Matrix> {
+public:
+	virtual double BB_Step_Length(double t_pre, const Matrix& x, const Matrix& x_pre, const Matrix& g, const Matrix& g_pre, int iter) {
+		auto dx = x - x_pre;
+		auto dg = g - g_pre;
+		double dxg = std::abs(dx.array() * dg.array()).sum();
+		if (dxg > 0) {
+			return iter % 2 ? dx.squaredNorm() / dxg : dxg / dg.squaredNorm();
+		}
+		return t_pre;
+	}
+};
+
+template<class Matrix>
+class No_BB : public BB<Matrix> {
+public:
+	virtual double BB_Step_Length(double t_pre, const Matrix& x, const Matrix& x_pre, const Matrix& g, const Matrix& g_pre, int iter) {
+		return t_pre;
+	}
 };
