@@ -75,7 +75,7 @@ class Problem {
 public:
 
 	Problem() {};
-	Problem(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls) { _Reset(obj, nor,_mu, ls); };
+	Problem(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls, BB<Matrix>* bb) { _Reset(obj, nor,_mu, ls); };
 	void _Reset(Object<Matrix>* obj, Normlization<Matrix>* nor,const double _mu, LineSearch<Matrix>* ls); 
 	Output<Matrix> Basic_Solve(const Matrix& x0);
 	Output<Matrix> FISTA_Solve(const Matrix& x0);

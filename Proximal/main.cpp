@@ -17,11 +17,14 @@ int main() {
 	// 创建 Line Search
 	LineSearch<Eigen::MatrixXd>* BT = new Back_Trace<Eigen::MatrixXd>(LS->f, LS->f_gradient);
 
+	// 创建 BB 步长
+	BB<Eigen::MatrixXd>* bb = new Alter_BB<Eigen::MatrixXd>();
+
 	// 合成Problem
-	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT); // 暂时不测试h(x)
+	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT, bb); // 暂时不测试h(x)
 
 	//得到解
-	Output<Eigen::MatrixXd> ans= problem.Basic_Solve(x);
+	Output<Eigen::MatrixXd> ans = problem.Basic_Solve(x);
 	std::cout << LS->Residual(ans.solution);
 	return 0;
 }
