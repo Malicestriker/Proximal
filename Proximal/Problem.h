@@ -24,6 +24,7 @@ template<class Matrix>
 class Normlization {
 
 public:
+	virtual double operator()(const Matrix& x) { return 0; }
 	virtual Matrix Prox(const Matrix &x, double t) = 0;
 
 };
