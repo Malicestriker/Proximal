@@ -1,6 +1,8 @@
 #pragma once
 #include "Problem.h"
 #include<functional>
+#include<cstdlib>
+#include<cmath>
 
 template<class Matrix>
 class Back_Trace:public LineSearch<Matrix> {
@@ -37,8 +39,9 @@ public:
 			if (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin) continue_flag = true; // Armijo
 			else if( gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 *  lin ) continue_flag = true; // Wolfe
 			
-			/*std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
-				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() > c2 * lin) << std::endl;*/
+			std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
+				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 * lin) << std::endl;
+			if (t < 1e-3) break;
 		}
 
 		return t;
@@ -53,7 +56,8 @@ public:
 	virtual double BB_Step_Length(double t_pre, const Matrix& x, const Matrix& x_pre, const Matrix& g, const Matrix& g_pre, int iter) {
 		auto dx = x - x_pre;
 		auto dg = g - g_pre;
-		double dxg = std::abs(dx.array() * dg.array()).sum();
+		
+		double dxg = (dx.array() * dg.array()).abs().sum();
 		if (dxg > 0) {
 			return iter % 2 ? dx.squaredNorm() / dxg : dxg / dg.squaredNorm();
 		}

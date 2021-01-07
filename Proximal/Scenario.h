@@ -47,6 +47,11 @@ public:
 	Matrix Residual(const Matrix& x) {
 		return A * x - b;
 	}
+
+	virtual const double Lipschitz() {
+		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(AA);
+		return 0.5*es.eigenvalues()(AA.rows() - 1);
+	}
 };
 
 
@@ -98,5 +103,10 @@ public:
 		auto a = Eigen::MatrixXd::NullaryExpr(n, m, generator);
 		Eigen::VectorXd b = Eigen::VectorXd::NullaryExpr(m, generator);
 		_Reset(a, b);
+	}
+
+	virtual const double Lipschitz() {
+
+		return 1.0 / m * A.rowwise().norm().sum();
 	}
 };

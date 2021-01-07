@@ -15,6 +15,7 @@ public:
 	Mdfunction_p f;// f(x)
 	MMfunction_p f_gradient; // f(x)µÄµ¼Êý
 	virtual const std::tuple<int, int> Solution_Size() = 0;
+	virtual const double Lipschitz() = 0;
 };
 
 /*
