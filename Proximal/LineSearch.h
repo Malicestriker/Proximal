@@ -41,7 +41,7 @@ public:
 			
 			std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
 				<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 * lin) << std::endl;
-			if (t < 1e-3) break;
+			if (t < 1e-5) break;
 		}
 
 		return t;

@@ -148,6 +148,7 @@
     <ClCompile Include="Problem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Evaluate.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="LineSearch.h" />
     <ClInclude Include="Problem.h" />

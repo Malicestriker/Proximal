@@ -1,7 +1,8 @@
 #pragma once
 #include<iostream>
 #include<functional>
-
+#include<cmath>
+#include<cstdlib>
 /*
 	f(x)
 */
@@ -84,9 +85,9 @@ public:
 	Output<Matrix> Inertial_Solve(const Matrix& x0);
 	
 	/*设置参数*/
-	void Set_Tol(const double _tol) { tol = std::max(_tol,0); }
+	void Set_Tol(const double _tol) { tol = std::max(_tol,0.0); }
 	void Set_Max_Iter(const int iter) { max_iter = std::max(iter, 0); }
-	void Set_T0(const double _t0) { t0 = std::max(_t0, 0); }
+	void Set_T0(const double _t0) { t0 = std::max(_t0, 0.0); }
 	void Reset_mu(const double _mu) { mu = _mu; }
 };
  
@@ -131,7 +132,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix&
 		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
 
 		x = h->Prox(x - t * gd, mu*t);
-		obj = f->f(x) + (*h)(x);
+		obj = f->f(x) + mu*(*h)(x);
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
