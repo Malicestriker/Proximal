@@ -76,8 +76,8 @@ class Problem {
 public:
 
 	Problem() {};
-	Problem(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls, BB<Matrix>* bb) { _Reset(obj, nor,_mu, ls); };
-	void _Reset(Object<Matrix>* obj, Normlization<Matrix>* nor,const double _mu, LineSearch<Matrix>* ls); 
+	Problem(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls, BB<Matrix>* _bb) { _Reset(obj, nor,_mu, ls, _bb); };
+	void _Reset(Object<Matrix>* obj, Normlization<Matrix>* nor,const double _mu, LineSearch<Matrix>* ls, BB<Matrix>* _bb);
 	Output<Matrix> Basic_Solve(const Matrix& x0);
 	Output<Matrix> FISTA_Solve(const Matrix& x0);
 	Output<Matrix> Nesterov_Solve(const Matrix& x0);
@@ -95,14 +95,15 @@ public:
 
 /*以下是 Problem的主体*/
 // 因为template不能分离实现。。。
-template<class Matrix> void Problem<Matrix>::_Reset(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls) {
+template<class Matrix> void Problem<Matrix>::_Reset(Object<Matrix>* obj, Normlization<Matrix>* nor, const double _mu, LineSearch<Matrix>* ls, BB<Matrix>* _bb) {
 	f = obj;
 	h = nor;
 	Ls = ls;
 	mu = _mu;
 	tol = 1e-9;
 	max_iter = 10000;
-	t0 = 1e-4; //TODO:应改为1/L，其中L是f(x)的利普希茨常数，应由f(x)的接口提供。
+	t0 = 1/obj->Lipschitz(); //TODO:应改为1/L，其中L是f(x)的利普希茨常数，应由f(x)的接口提供。
+	bb = _bb;
 }
 
 template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix& x0) {
