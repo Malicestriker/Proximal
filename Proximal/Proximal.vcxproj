@@ -152,6 +152,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="LineSearch.h" />
     <ClInclude Include="Problem.h" />
+    <ClInclude Include="RandomInit.h" />
     <ClInclude Include="Scenario.h" />
     <ClInclude Include="Normlizer.h" />
   </ItemGroup>
