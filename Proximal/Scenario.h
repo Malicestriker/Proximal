@@ -119,9 +119,15 @@ public:
 	void Test_Init(unsigned int n, unsigned int m, int seed = 97006855) {
 		auto raw_generator = std::mt19937_64(seed);
 		auto normal_distribution = std::normal_distribution<double>();
+		auto binomial_distribution = std::binomial_distribution<int>{1,0.75};
 		auto generator = [&]() {return normal_distribution(raw_generator); };
-		auto a = Eigen::MatrixXd::NullaryExpr(n, m, generator);
-		Eigen::VectorXd b = Eigen::VectorXd::NullaryExpr(m, generator);
+		auto bigenerator = [&]() {return 1.0 - 2 * binomial_distribution(raw_generator); };
+		Eigen::MatrixXd a = Eigen::MatrixXd::NullaryExpr(n, m, generator);
+		Eigen::VectorXd b = Eigen::VectorXd::NullaryExpr(m, bigenerator);
+		
+		Eigen::MatrixXd b_tmp = b;
+		Write_To_File(a, "a.txt");
+		Write_To_File(b_tmp, "b.txt");
 		_Reset(a, b);
 	}
 
@@ -129,4 +135,5 @@ public:
 
 		return 1.0 / m * A.rowwise().norm().sum();
 	}
+
 };

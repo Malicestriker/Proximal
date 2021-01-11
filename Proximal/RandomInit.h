@@ -12,6 +12,7 @@ class Init {
 	Matrix u;
 	Matrix x0;
 
+	// 其实Scenario的test_init里有一份，你觉得放哪里更好
 	void generate_LS(unsigned int m, unsigned int n, unsigned int l, double sparsity, int seed = 97006855) {
 		auto raw_generator = std::mt19937_64(seed);
 		auto normal_distribution = std::normal_distribution<double>();
