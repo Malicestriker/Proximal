@@ -35,8 +35,9 @@ int main() {
 		x = ans.solution;
 	}
 	
-	std::cout << LS->Residual(x);
-	
+
+	//std::cout << LS->Residual(x);
+	std::cout << x <<std::endl;
 	std::cout << Sparsity(x);
 	return 0;
 }
