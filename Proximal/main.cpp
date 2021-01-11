@@ -7,8 +7,8 @@
 int main() {
 
 	// 创建 f(x)
-	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>();
-	LS->Test_Init(256,512,2);
+	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>("A.txt");
+	//LS->Test_Init(256,512,2);
 	const auto [m,n] = LS->Solution_Size();
 
 	Eigen::MatrixXd x = Eigen::MatrixXd::Zero(m, n);
@@ -24,13 +24,16 @@ int main() {
 
 	int height = 5;
 
+	// 合成Problem
+	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT, bb); // 暂时不测试h(x)
+
 	for (int i = 0; i < height; i++) {
 		double mu = 0.01 * pow(10, height - i - 1);
 
-		// 合成Problem
-		Problem<Eigen::MatrixXd> problem(LS, n_12, mu, BT, bb); // 暂时不测试h(x)
-
-		problem.Set_Tol(1e-12 * pow(100, height - i - 1));
+		
+		// 重置参数
+		problem.Reset_mu(mu);
+		problem.Set_Tol(1e-9 * pow(100, height - i - 1));
 		//得到解
 		Output<Eigen::MatrixXd> ans = problem.Basic_Solve(x);
 		x = ans.solution;
