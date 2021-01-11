@@ -3,6 +3,7 @@
 #include "Eigen/dense"
 #include "File.h"
 #include <random>
+#include <numeric>
 template<class Matrix> 
 class Least_Square : public Object<Matrix> {
 
@@ -32,6 +33,10 @@ public:
 		this->f_gradient = std::bind(&Least_Square::obj_g, this, _1);
 	}
 
+	Least_Square() {
+
+	}
+
 	Least_Square(const std::string & file_name){
 		std::ifstream input(file_name);
 		Eigen::MatrixXd A, b;
@@ -51,6 +56,21 @@ public:
 	virtual const double Lipschitz() {
 		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(AA);
 		return 0.5*es.eigenvalues()(AA.rows() - 1);
+	}
+
+	void Test_Init(unsigned int m, unsigned int n, unsigned int l, int seed = 97006855, double sparsity = 1e-1) {
+		auto raw_generator = std::mt19937_64(seed);
+		auto normal_distribution = std::normal_distribution<double>();
+		auto generator = [&]() {return normal_distribution(raw_generator); };
+		A = Eigen::MatrixXd::NullaryExpr(m, n, generator);
+		unsigned long k = std::round(n * sparsity);
+		std::vector<size_t> p(n);
+		std::iota(p.begin(), p.end(), 0);
+		std::shuffle(p.begin(), p.end(), raw_generator);
+		Eigen::MatrixXd u = Eigen::MatrixXd::NullaryExpr(n, l, generator);
+		for (size_t i = k; i < n; ++i) u.row(p[i]).setZero();
+		b = A * u;
+		_Reset(A, b);
 	}
 };
 

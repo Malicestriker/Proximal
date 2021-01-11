@@ -7,7 +7,8 @@
 int main() {
 
 	// ´´½¨ f(x)
-	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>("A.txt");
+	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>();
+	LS->Test_Init(256,512,2);
 	const auto [m,n] = LS->Solution_Size();
 
 	Eigen::MatrixXd x = Eigen::MatrixXd::Zero(m, n);
