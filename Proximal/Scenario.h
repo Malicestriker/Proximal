@@ -55,7 +55,7 @@ public:
 
 	virtual const double Lipschitz() {
 		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(AA);
-		return 0.5*es.eigenvalues()(AA.rows() - 1);
+		return es.eigenvalues()(AA.rows() - 1);
 	}
 
 	void Test_Init(unsigned int m, unsigned int n, unsigned int l, int seed = 97006855, double sparsity = 1e-1) {

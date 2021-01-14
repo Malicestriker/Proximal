@@ -117,7 +117,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix&
 	Matrix gd = x;
 	Matrix gd_pre = gd;
 	double obj_pre = 2147483647;
-	double obj = f->f(x) + (*h)(x);
+	double obj = f->f(x) + mu * (*h)(x);
 	double t = t0;
 	Output<Matrix> ans;
 	ans.f_val.reserve(max_iter);
@@ -132,7 +132,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix&
 		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
 
 		x = h->Prox(x - t * gd, mu*t);
-		obj = f->f(x) + mu*(*h)(x);
+		obj = f->f(x) + mu * (*h)(x);
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
@@ -174,24 +174,33 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::FISTA_Solve(const Matrix&
 	Matrix v = x;
 	double theta = 1.0, theta_pre = theta;
 	double t = t0, t_pre = t;
+	double eta = 0.2;
 	
 	double obj_pre = 2147483647;
-	double obj = f->f(x) + (*h)(x);
+	double obj = f->f(x) + mu * (*h)(x);
 	Output<Matrix> ans;
 	ans.f_val.reserve(max_iter);
+	std::cout << "FISTA算法默认采用线搜索和BB步长。\n";
 
 	for (; iter < max_iter; iter++) {
 
 		gd_pre = gd, x_pre = x, obj_pre = obj, theta_pre = theta;
 		theta = (-1 * t * theta_pre * theta_pre + theta_pre * std::sqrt(t * t * theta_pre * theta_pre + 4 * t * t_pre)) / (2 * t_pre);
+		y = (1 - theta) * x_pre + theta * v;
+		gd = f->f_gradient(y); // 梯度
+		x = h->Prox(y - t * gd, mu * t);
+
+		for (int ls = 0; ls < 5; ++ls) {
+			if (f->f(x) <= f->f(y) + (gd * (x - y)).array().sum() + 0.5 / t * (x - y).squaredNorm()) break;
+			theta = (-1 * t * theta_pre * theta_pre + theta_pre * std::sqrt(t * t * theta_pre * theta_pre + 4 * t * t_pre)) / (2 * t_pre);
+			y = (1 - theta) * x_pre + theta * v;
+			gd = f->f_gradient(y); // 梯度
+			x = h->Prox(y - t * gd, mu * t);
+		}
 		t_pre = t;
 
-		y = (1 - theta) * x + theta * v;
-		gd = f->f_gradient(y); // 梯度
-		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
 
-		x = h->Prox(x - t * gd, mu * t);
-		obj = f->f(x) + (*h)(x);
+		obj = f->f(x) + mu * (*h)(x);
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 		v = x_pre + 1.0 / theta * (x - x_pre);
@@ -236,9 +245,10 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Nesterov_Solve(const Matr
 	double t = t0;
 
 	double obj_pre = 2147483647;
-	double obj = f->f(x) + (*h)(x);
+	double obj = f->f(x) + mu * (*h)(x);
 	Output<Matrix> ans;
 	ans.f_val.reserve(max_iter);
+	std::cout << "第二类Nesterov算法默认不采用线搜索和BB步长。\n";
 
 	for (; iter < max_iter; iter++) {
 
@@ -249,11 +259,10 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Nesterov_Solve(const Matr
 		gd = f->f_gradient(y); // 梯度
 		v = h->Prox(v_pre - t / theta * gd, t / theta * mu);
 		x = (1 - theta) * x_pre + theta * v;
-		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
 
-		obj = f->f(x) + (*h)(x);
-		t = bb->BB_Step_Length(t, x, y, gd, gd_pre, iter); //BB步长
-		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
+		obj = f->f(x) + mu * (*h)(x);
+		//t = bb->BB_Step_Length(t, x, y, gd, gd_pre, iter); //BB步长
+		//t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
 		if ((x - x_pre).norm() < tol * x.norm() && std::abs(obj_pre - obj) < tol * abs(obj)) {
 			End_Flag = true;
@@ -293,7 +302,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 	double beta = 0.1;
 
 	double obj_pre = 2147483647;
-	double obj = f->f(x) + (*h)(x);
+	double obj = f->f(x) + mu * (*h)(x);
 	Output<Matrix> ans;
 	ans.f_val.reserve(max_iter);
 
@@ -305,7 +314,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
 		x = h->Prox(x_pre - t * gd + beta * (x_pre - x_prepre), t);
 
-		obj = f->f(x) + (*h)(x);
+		obj = f->f(x) + mu * (*h)(x);
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
