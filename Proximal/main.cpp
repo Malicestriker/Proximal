@@ -35,7 +35,7 @@ int main() {
 		problem.Reset_mu(mu);
 		problem.Set_Tol(1e-9 * pow(100, height - i - 1));
 		//µÃµ½½â
-		Output<Eigen::MatrixXd> ans = problem.FISTA_Solve(x);
+		Output<Eigen::MatrixXd> ans = problem.Basic_Solve(x);
 		x = ans.solution;
 	}
 	

@@ -104,11 +104,13 @@ public:
 		return { A.cols(), 1 };
 	}
 
+	// ±¸Íü£ºaÊÇn*m£¬bÊÇm*1¡£
 	Logistic(const std::string& file_name) {
 		std::ifstream input(file_name);
-		Eigen::MatrixXd _a, _b;
+		Eigen::MatrixXd _a;
+		Eigen::VectorXd _b;
 		Read_From_File(_a, input);
-		Read_From_File(_b, input);
+		Read_From_File_Vec(_b, input);
 		_Reset(_a, _b);
 	}
 
