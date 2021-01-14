@@ -26,7 +26,7 @@ int main() {
 	int height = 5;
 
 	// 合成Problem
-	Problem<Eigen::MatrixXd> problem(LS, n_12, 0, BT, bb); // 暂时不测试h(x)
+	Problem<Eigen::MatrixXd> problem(LS, n_12, 0.01, BT, bb); // 暂时不测试h(x)
 	problem.Set_Tol(1e-6);
 	Output<Eigen::MatrixXd> ans = problem.Basic_Solve(x);
 	x = ans.solution;
