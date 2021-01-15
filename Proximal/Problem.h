@@ -258,7 +258,7 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Nesterov_Solve(const Matr
 		ans.f_val.push_back(obj);
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
 
-		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
+		if (stopCriteria(x, x_pre, ans.f_val, tol * 300, iter)) {
 			End_Flag = true;
 			break;
 		}
@@ -294,11 +294,11 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 
 	for (; iter < max_iter; iter++) {
 
-		gd_pre = gd, x_pre = x, x_prepre = x_pre, obj_pre = obj;
+		gd_pre = gd,x_prepre = x_pre, x_pre = x,  obj_pre = obj;
 
 		gd = f->f_gradient(x); // 梯度
 		t = Ls->Line_Search_Result(x, -gd, t); // 线搜索
-		x = h->Prox(x_pre - t * gd + beta * (x_pre - x_prepre), t);
+		x = h->Prox(x_pre - t * gd + beta * (x_pre - x_prepre), mu * t);
 
 		obj = f->f(x) + mu * (*h)(x);
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长

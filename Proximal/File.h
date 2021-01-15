@@ -69,6 +69,12 @@ void Write_To_File(Eigen::MatrixXd& A, const std::string& file_name) {
 	Write_To_File(A, output);
 }
 
+void Write_Trajectory(const std::vector<double>& traj, const std::string& file_name) {
+	std::ofstream output(file_name);
+	for (auto it : traj) output << it << std::endl;
+	output.close();
+}
+
 void a9aConvert(const std::string& src, const std::string& dst) {
 	std::ifstream input(src);
 	std::string tmp;

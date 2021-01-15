@@ -138,4 +138,7 @@ public:
 		return 1.0 / m * A.rowwise().norm().sum();
 	}
 
+	double check_accuracy(const Matrix& x) {
+		return 1.0 * ((A * x).array() < 0).count() / m;
+	}
 };

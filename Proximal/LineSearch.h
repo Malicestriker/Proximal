@@ -37,7 +37,7 @@ public:
 			t = t * 0.5;
 			continue_flag = false;
 			if (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin) continue_flag = true; // Armijo
-			else if( gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 *  lin ) continue_flag = true; // Wolfe
+			//else if( gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 *  lin ) continue_flag = true; // Wolfe
 			
 			//std::cout << "[LineSearch] " << (object(x + t * Direction) > ref - (1e-4) * ref + c1 * t * lin)
 			//	<< " " << (gradient(x + t * Direction).cwiseProduct(Direction).sum() < c2 * lin) << std::endl;
