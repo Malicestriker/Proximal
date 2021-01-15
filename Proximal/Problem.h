@@ -83,6 +83,7 @@ public:
 	Output<Matrix> FISTA_Solve(const Matrix& x0);
 	Output<Matrix> Nesterov_Solve(const Matrix& x0);
 	Output<Matrix> Inertial_Solve(const Matrix& x0);
+	inline bool stopCriteria(const Matrix& x, const Matrix& x_pre, const std::vector<double>& f_val, double tol, int iter);
 	
 	/*设置参数*/
 	void Set_Tol(const double _tol) { tol = std::max(_tol,0.0); }
@@ -136,18 +137,13 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix&
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
-		if ((x - x_pre).norm() < tol * x.norm() && std::abs(obj_pre - obj) < tol * abs(obj)) {
-			End_Flag = true;
-			break;
-		}
-
-		if ((x - x_pre).norm() < tol && std::abs(obj_pre - obj) < tol) {
-			End_Flag = true;
-			break;
-		}
-
 		ans.f_val.push_back(obj);
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t<< ", norm "<< (x - x_pre).norm()<<std::endl;
+
+		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
+			End_Flag = true;
+			break;
+		}
 		//system("pause");
 	}
 
@@ -170,11 +166,12 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::FISTA_Solve(const Matrix&
 
 	Matrix x = x0, x_pre = x;
 	Matrix gd = x, gd_pre = gd;
-	Matrix y = x;
+	Matrix y = x, y_pre = y;
 	Matrix v = x;
 	double theta = 1.0, theta_pre = theta;
 	double t = t0, t_pre = t;
 	double eta = 0.2;
+	double tmp;
 	
 	double obj_pre = 2147483647;
 	double obj = f->f(x) + mu * (*h)(x);
@@ -184,39 +181,33 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::FISTA_Solve(const Matrix&
 
 	for (; iter < max_iter; iter++) {
 
-		gd_pre = gd, x_pre = x, obj_pre = obj, theta_pre = theta;
-		theta = (-1 * t * theta_pre * theta_pre + theta_pre * std::sqrt(t * t * theta_pre * theta_pre + 4 * t * t_pre)) / (2 * t_pre);
+		gd_pre = gd, x_pre = x, obj_pre = obj, theta_pre = theta, y_pre = y;
+		theta = 2.0 / double(iter + 1);
 		y = (1 - theta) * x_pre + theta * v;
 		gd = f->f_gradient(y); // 梯度
 		x = h->Prox(y - t * gd, mu * t);
+		tmp = f->f(y);
 
 		for (int ls = 0; ls < 5; ++ls) {
-			if (f->f(x) <= f->f(y) + (gd * (x - y)).array().sum() + 0.5 / t * (x - y).squaredNorm()) break;
-			theta = (-1 * t * theta_pre * theta_pre + theta_pre * std::sqrt(t * t * theta_pre * theta_pre + 4 * t * t_pre)) / (2 * t_pre);
-			y = (1 - theta) * x_pre + theta * v;
-			gd = f->f_gradient(y); // 梯度
+			if (f->f(x) <= tmp + (gd * (x - y)).array().sum() + 0.5 / t * (x - y).squaredNorm()) break;
+			t = t * eta;
 			x = h->Prox(y - t * gd, mu * t);
 		}
 		t_pre = t;
 
 
 		obj = f->f(x) + mu * (*h)(x);
-		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
+		t = bb->BB_Step_Length(t, y, y_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 		v = x_pre + 1.0 / theta * (x - x_pre);
 
-		if ((x - x_pre).norm() < tol * x.norm() && std::abs(obj_pre - obj) < tol * abs(obj)) {
-			End_Flag = true;
-			break;
-		}
-
-		if ((x - x_pre).norm() < tol && std::abs(obj_pre - obj) < tol) {
-			End_Flag = true;
-			break;
-		}
-
 		ans.f_val.push_back(obj);
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
+
+		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
+			End_Flag = true;
+			break;
+		}
 		//system("pause");
 	}
 
@@ -264,18 +255,13 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Nesterov_Solve(const Matr
 		//t = bb->BB_Step_Length(t, x, y, gd, gd_pre, iter); //BB步长
 		//t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
-		if ((x - x_pre).norm() < tol * x.norm() && std::abs(obj_pre - obj) < tol * abs(obj)) {
-			End_Flag = true;
-			break;
-		}
-
-		if ((x - x_pre).norm() < tol && std::abs(obj_pre - obj) < tol) {
-			End_Flag = true;
-			break;
-		}
-
 		ans.f_val.push_back(obj);
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
+
+		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
+			End_Flag = true;
+			break;
+		}
 		//system("pause");
 	}
 
@@ -318,18 +304,14 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 		t = bb->BB_Step_Length(t, x, x_pre, gd, gd_pre, iter); //BB步长
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
-		if ((x - x_pre).norm() < tol * x.norm() && std::abs(obj_pre - obj) < tol * abs(obj)) {
-			End_Flag = true;
-			break;
-		}
-
-		if ((x - x_pre).norm() < tol && std::abs(obj_pre - obj) < tol) {
-			End_Flag = true;
-			break;
-		}
-
 		ans.f_val.push_back(obj);
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
+
+		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
+			End_Flag = true;
+			break;
+		}
+
 		//system("pause");
 	}
 
@@ -344,4 +326,18 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 	ans.solution = x;
 
 	return ans;
+}
+
+
+template<class Matrix>
+inline bool Problem<Matrix>::stopCriteria(const Matrix& x, const Matrix& x_pre, const std::vector<double>& f_val, double tol, int iter) {
+	if ((x - x_pre).norm() < tol * x.norm() && std::abs(f_val[iter] - f_val[iter - 1]) < tol * std::abs(f_val[iter])) return true;
+	if ((x - x_pre).norm() < tol && std::abs(f_val[iter] - f_val[iter - 1]) < tol) return true;
+	if (iter < 20) return false;
+	double min = f_val[iter];
+	for (int i = iter - 1; i >= iter - 19; --i)
+		if (f_val[i] < min)
+			min = f_val[i];
+	if (f_val[iter - 20] < min) return true;
+	return false;
 }
