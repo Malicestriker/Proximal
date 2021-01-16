@@ -58,6 +58,7 @@ public:
 		return es.eigenvalues()(AA.rows() - 1);
 	}
 
+	
 	void Test_Init(unsigned int m, unsigned int n, unsigned int l, int seed = 97006855, double sparsity = 1e-1) {
 		auto raw_generator = std::mt19937_64(seed);
 		auto normal_distribution = std::normal_distribution<double>();

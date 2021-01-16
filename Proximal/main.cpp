@@ -4,13 +4,14 @@
 #include "Normlizer.h"
 #include "LineSearch.h"
 #include "Evaluate.h"
+#include "File.h"
 int main() {
 
 	// 创建 f(x)
 	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>();
 	
 	// 创建 h(x)
-	Norm_12* n_12 = new Norm_12();
+	Nothing<Eigen::MatrixXd>* n_12 = new Nothing<Eigen::MatrixXd>();
 
 	// 设置测试数据
 	LS->Test_Init(256, 512, 2);
@@ -47,5 +48,7 @@ int main() {
 	//std::cout << LS->Residual(x);
 	std::cout << x <<std::endl;
 	std::cout << Sparsity(x);
+
+
 	return 0;
 }

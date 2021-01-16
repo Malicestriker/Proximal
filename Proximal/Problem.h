@@ -138,8 +138,9 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Basic_Solve(const Matrix&
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
 		ans.f_val.push_back(obj);
-		std::cout << "iter " << iter << ", obj " << obj << ", t" << t<< ", norm "<< (x - x_pre).norm()<<std::endl;
-
+#ifdef VERBOSE
+		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
+#endif // VERBOSE
 		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
 			End_Flag = true;
 			break;
@@ -202,8 +203,9 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::FISTA_Solve(const Matrix&
 		v = x_pre + 1.0 / theta * (x - x_pre);
 
 		ans.f_val.push_back(obj);
+#ifdef VERBOSE
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
-
+#endif // VERBOSE
 		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
 			End_Flag = true;
 			break;
@@ -256,8 +258,9 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Nesterov_Solve(const Matr
 		//t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
 		ans.f_val.push_back(obj);
+#ifdef VERBOSE
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
-
+#endif // VERBOSE
 		if (stopCriteria(x, x_pre, ans.f_val, tol * 300, iter)) {
 			End_Flag = true;
 			break;
@@ -305,7 +308,10 @@ template<class Matrix> Output<Matrix> Problem<Matrix>::Inertial_Solve(const Matr
 		t = std::min(1e5, std::max(t, t0)); //BB步长截断在固定的区间内
 
 		ans.f_val.push_back(obj);
+
+#ifdef VERBOSE
 		std::cout << "iter " << iter << ", obj " << obj << ", t" << t << ", norm " << (x - x_pre).norm() << std::endl;
+#endif // VERBOSE
 
 		if (stopCriteria(x, x_pre, ans.f_val, tol, iter)) {
 			End_Flag = true;
