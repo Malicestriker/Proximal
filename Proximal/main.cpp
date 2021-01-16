@@ -11,7 +11,7 @@ int main() {
 	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>();
 	
 	// 创建 h(x)
-	Nothing<Eigen::MatrixXd>* n_12 = new Nothing<Eigen::MatrixXd>();
+	Norm_12* n_12 = new Norm_12();
 
 	// 设置测试数据
 	LS->Test_Init(256, 512, 2);
