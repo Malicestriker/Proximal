@@ -9,7 +9,7 @@
 int main() {
 
 	// 创建 f(x)
-	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>("data/a1a_train.txt");
+	Least_Square<Eigen::MatrixXd>* LS = new Least_Square<Eigen::MatrixXd>("data/cpusmall.txt");
 
 	// 创建 h(x)
 	Norm_12* n_12 = new Norm_12();
@@ -40,8 +40,8 @@ int main() {
 	for (int i = 0; i < height; ++i) {
 		double mu = 0.01  * pow(10, height - i - 1);
 		problem.Reset_mu(mu);
-		problem.Set_Tol(1e-9 * pow(100, height - i - 1));
-		Output<Eigen::MatrixXd> ans = problem.Nesterov_Solve(x);
+		problem.Set_Tol(1e-5 * pow(100, height - i - 1));
+		Output<Eigen::MatrixXd> ans = problem.FISTA_Solve(x);
 		total_iter += ans.iter + 1;
 		opt_hist.insert(opt_hist.end(), ans.f_val.begin(), ans.f_val.end());
 		x = ans.solution;
@@ -53,13 +53,14 @@ int main() {
 	std::cout << "total iterations: " << total_iter << std::endl;
 	std::cout << "time: " << 1.0 * time / CLOCKS_PER_SEC << 's' << std::endl;
 	std::cout << "final_value: " << fin << std::endl;
-	Write_Trajectory(opt_hist, "output/a1a_nesterov.txt");
+	Write_Trajectory(opt_hist, "output/cpusmall_fista.txt");
 
 	
-	std::ifstream test("data/a1a_test.txt");
+	std::ifstream test("data/cpusmall_test.txt");
 	Eigen::MatrixXd A, b;
 	Read_From_File(A,test);
 	Read_From_File(b,test);
+	/*
 	auto t = (A*x).cwiseSign();
 	b = b.cwiseSign();
 	int ans = 0;
@@ -68,6 +69,8 @@ int main() {
 			ans++;
 		}
 	}
-	std::cout << ans * 1.0 / A.rows();
+	std::cout << ans * 1.0 / A.rows();*/
+
+	std::cout << (A * x - b).squaredNorm()  / b.squaredNorm();
 	return 0;
 }
